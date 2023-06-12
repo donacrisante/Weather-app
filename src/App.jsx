@@ -18,7 +18,7 @@ const newActivities = [
 /* const isGoodWeather = true; */
 
 function App() {
-  const [activities, setActivities] = useState(newActivities);
+  const [activities, setActivities] = useLocalStorageState("activities", {defaultValue: newActivities});
   const [weather, setWeather] = useState(true);
   const [temperature, setTemperature] = useState();
   const [condition, setCondition] = useState();
@@ -35,15 +35,14 @@ function App() {
     } catch (error) {
     }
   }
-  getWeather();
 
   const badWeather = activities.filter((activity) =>
     activity.isForGoodWeather === true ? false : true 
   )
   console.log(badWeather);
 
-  function handleAddActivity({newActivity}) {
-    setActivities([...activities, {...newActivity, id: uid(4)}]);
+  function handleAddActivity(newActivity) {
+    setActivities([...activities, {...newActivity, id: uid()}]);
     console.log(activities);
   }
 
@@ -53,6 +52,7 @@ function App() {
   }
 
   useEffect(() => {
+    getWeather();
     const initialWeather = setInterval(getWeather, 5000);
     return () => {
       clearInterval(initialWeather);
@@ -62,8 +62,8 @@ function App() {
   return (
     <>
     <Display emoji={condition} temperature={temperature}/>
-    <HeaderList isGoodWeather={weather}/>
     <Form onAddActivity={handleAddActivity}/>
+    <HeaderList isGoodWeather={weather.isGoodWeather}/>
     {weather === false ? badWeather.map((activity) => (<List name={activity.name} key={activity.id} onDeleteActivity={handleDeleteActivity} id={activity.id}/>)) : activities.map((activity) => (<List name={activity.name} key={activity.id} onDeleteActivity={handleDeleteActivity} id={activity.id}/>))}
     </>
   )
